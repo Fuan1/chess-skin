@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SkinChess.com</title>
+    <style>
+        :root {
+            --primary-color: #333;
+            --secondary-color: #222;
+            --accent-color: #6d4aff;
+            --light-color: #e0e0e0;
+            --dark-color: #222;
+            --border-radius: 8px;
+        }
+        
+        body {
+            width: 380px;
+            height: 565px;
+            max-height: 565px;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            position: relative;
+        }
+        
+        .header {
+            background-color: var(--secondary-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #444;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin: 0 2px;
+        }
+        
+        .dot1 { background-color: #ff7675; }
+        .dot2 { background-color: #74b9ff; }
+        .dot3 { background-color: #55efc4; }
+        .dot4 { background-color: #ffeaa7; }
+        
+        .toggle-container {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .skin-title {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+        
+        .chessboard-container {
+            padding: 10px;
+            background-color: #3a3a3a;
+            position: relative;
+            max-width: 250px;
+            margin: 10px auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .chessboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 0;
+            width: 100%;
+            aspect-ratio: 1/1;
+            border: 2px solid #222;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .chess-square {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1/1;
+        }
+        
+        .light-square {
+            background-color: #e8d0aa;
+        }
+        
+        .dark-square {
+            background-color: #b58863;
+        }
+        
+        .chess-piece {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+        
+        .slider-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 0;
+            position: absolute;
+            top: 50%;
+            left: -45px;
+            right: -45px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .nav-button {
+            background-color: rgba(50, 50, 50, 0.5);
+            color: white;
+            border: 1px solid #666;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 100%;
+            font-size: 18px;
+            transition: all 0.2s;
+            pointer-events: auto;
+            margin: 0;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .nav-button:hover {
+            background-color: #444;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 2px 0;
+        }
+        
+        .dot {
+            height: 10px;
+            width: 10px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .dot.active {
+            background-color: var(--accent-color);
+        }
+        
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 20px;
+            background-color: var(--secondary-color);
+            color: #888;
+            font-size: 10px;
+            border-top: 1px solid #444;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        .apply-button {
+            display: block;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 25px;
+            margin: 18px auto 30px;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .apply-button:hover {
+            background-color: #5a3ecc;
+            box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+        }
+        
+        .apply-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .piece-selection-container {
+            padding: 5px;
+            background-color: #3a3a3a;
+            position: relative;
+            max-width: 250px;
+            margin: 5px auto 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .piece-selection {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 6px 8px;
+            background-color: #333;
+            border-radius: 4px;
+        }
+        
+        .piece-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+            padding: 2px;
+        }
+        
+        .piece-name {
+            margin-top: 5px;
+            font-size: 11px;
+            text-align: center;
+            color: #e0e0e0;
+        }
+        
+        .piece-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .piece-button:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .piece-selection .chess-piece {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            Skin<span class="logo-dot dot1"></span><span class="logo-dot dot2"></span><span class="logo-dot dot3"></span>Chess.com
+        </div>
+        <div class="toggle-container">
+            <label class="toggle-switch">
+                <input type="checkbox" id="skin-toggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+    
+    <div class="skin-title" id="current-skin-title">Pixel Perl</div>
+    
+    <div class="chessboard-container">
+        <div class="chessboard" id="preview-board">
+            <!-- Chess board is dynamically generated by JavaScript -->
+        </div>
+        <div class="slider-controls">
+            <button class="nav-button" id="prev-skin">&lt;</button>
+            <button class="nav-button" id="next-skin">&gt;</button>
+        </div>
+    </div>
+    
+    <div class="piece-selection-container">
+        <div class="piece-selection" id="piece-selection">
+            <!-- Chess piece selection area is dynamically generated by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="pagination" id="skin-pagination">
+        <!-- Pagination dots are dynamically generated by JavaScript -->
+    </div>
+    
+    <button class="apply-button" id="apply-skin">APPLY</button>
+    
+    <div class="footer">
+        <div class="version">v1.0.1</div>
+        <div class="copyright">© 2025 Chess Skin Changer</div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html> 
