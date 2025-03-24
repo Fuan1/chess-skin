@@ -31,6 +31,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyButton = document.getElementById('apply-skin');
     const paginationElement = document.getElementById('skin-pagination');
 
+    function isImageExists(path) {
+        return fetch(path)
+            .then(response => response.ok) // response.ok가 true면 이미지가 존재함
+            .catch(() => false);
+    }
+
     // 체스판 초기화
     function initializeChessboard() {
         // 체스판 비우기
@@ -52,7 +58,25 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let row = 0; row < 4; row++) {
             for (let col = 0; col < 4; col++) {
                 const square = document.createElement('div');
-                square.className = `chess-square ${(row + col) % 2 === 0 ? 'light-square' : 'dark-square'}`;
+                // 체스판 색상 설정 (밝은 칸 또는 어두운 칸)
+                const isLightSquare = (row + col) % 2 === 0;
+                square.className = `chess-square ${isLightSquare ? 'light-square' : 'dark-square'}`;
+                
+                // 현재 스킨의 체스판 이미지 경로
+                const currentSkinId = skins[currentSkinIndex].id;
+                const brightPath = `skins/${currentSkinId}/bright.png`;
+                const darkPath = `skins/${currentSkinId}/dark.png`;
+                
+                // 스킨에 체스판 이미지가 있으면 배경으로 적용
+                isImageExists(brightPath).then(exists => {
+                    if (exists) {
+                        const backgroundPath = isLightSquare ? brightPath : darkPath;
+                        square.style.backgroundImage = `url('${backgroundPath}')`;
+                        square.style.backgroundSize = '100% 100%';
+                        square.style.backgroundRepeat = 'no-repeat';
+                        square.style.backgroundPosition = 'center';
+                    }
+                });
                 
                 // 체스 말 배치
                 const piece = setup[row][col];

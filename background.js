@@ -1,9 +1,16 @@
+
 // 현재 활성화된 규칙 ID 저장
 let currentRuleIds = [];
 // 스킨 활성화 상태
 let skinEnabled = true;
 // 현재 선택된 스킨 ID
 let currentSkinId = 'classic';
+
+function isImageExists(path) {
+    return fetch(path)
+        .then(response => response.ok) // response.ok가 true면 이미지가 존재함
+        .catch(() => false);
+}
 
 // 스킨 ID로부터 규칙 객체 생성
 async function generateRules(skinId) {
@@ -28,6 +35,28 @@ async function generateRules(skinId) {
             },
             condition: {
                 urlFilter: `*/150/${code}.png`,
+                resourceTypes: ["image"]
+            }
+        });
+    }
+
+    const gridExists = await isImageExists(`/skins/${skinId}/grid.png`);
+    if (gridExists) {
+        rules.push({
+            id: pieceCodes.length + 1,
+            priority: 1,
+            action: {
+                type: "redirect",
+                redirect: {
+                    transform: {
+                        scheme: "chrome-extension",
+                        host: chrome.runtime.id,
+                        path: `/skins/${skinId}/grid.png`
+                    }
+                }
+            },
+            condition: {
+                urlFilter: `*/200.png`,
                 resourceTypes: ["image"]
             }
         });
