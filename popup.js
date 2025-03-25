@@ -19,19 +19,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // 기본 제공 스킨 목록
     const DEFAULT_SKINS = [
         {
-            id: 'pixel',
-            name: 'Pixel Perl',
-            description: 'Pixel art style chess pieces'
+            id: 'animal',
+            name: 'Animal Skin',
+            description: 'Animal chess piece design'
         },
         {
-            id: 'classic',
-            name: 'Classic Skin',
-            description: 'Default chess piece design'
+            id: 'casino',
+            name: 'Casino Skin',
+            description: 'Casino chess piece design'
+        },
+        
+        {
+            id: 'allWhite',
+            name: 'All White',
+            description: 'All White chess pieces'
         },
         {
-            id: 'modern',
-            name: 'Modern Skin',
-            description: 'Modern design chess pieces'
+            id: 'allBlack',
+            name: 'All Black',
+            description: 'All Black chess pieces'
         }
     ];
     
