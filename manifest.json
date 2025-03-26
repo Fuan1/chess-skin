@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Chess.com Skin Changer",
     "version": "1.0.1",
-    "description": "체스닷컴 스킨을 사용자 지정 디자인으로 변경합니다.",
+    "description": "Chess.com Skin Changer",
     "permissions": ["declarativeNetRequest", "storage", "tabs"],
     "host_permissions": ["https://*.chess.com/*", "https://images.chesscomfiles.com/*"],
     "web_accessible_resources": [

@@ -281,6 +281,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const currentSkinId = getCurrentSkinId();
         
+        // 기물 이름 매핑
+        const pieceNames = {
+            'wk': 'King',
+            'wq': 'Queen',
+            'wr': 'Rook',
+            'wn': 'Knight',
+            'wb': 'Bishop'
+        };
+        
         for (const pieceCode of PIECE_CODES.SELECTION) {
             const pieceContainer = document.createElement('div');
             pieceContainer.className = 'piece-container';
@@ -298,6 +307,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 
                 pieceContainer.appendChild(pieceImg);
+                
+                // 기물 이름 추가
+                const pieceName = document.createElement('div');
+                pieceName.className = 'piece-name';
+                pieceName.textContent = pieceNames[pieceCode];
+                pieceContainer.appendChild(pieceName);
+                
                 elements.pieceSelection.appendChild(pieceContainer);
             } catch (error) {
                 console.error(`기물 선택 이미지 로드 오류: ${pieceCode}`, error);
