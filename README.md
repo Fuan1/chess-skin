@@ -1,53 +1,64 @@
-# Chess.com 스킨 교체기
+# Chess.com Skin Customizer
 
-Chess.com 웹사이트에서 사용되는 체스 피스 이미지를 사용자 정의 이미지로 교체하는 크롬 확장 프로그램입니다.
+A Chrome extension that enhances your Chess.com experience by providing custom skins and sound effects for chess pieces.
 
-## 주요 기능
+## Features
 
-- Chess.com 웹사이트의 기본 체스 피스를 사용자 지정 이미지로 대체
-- 다양한 스킨 지원 (클래식, 모던, 픽셀)
-- 간편한 ON/OFF 토글
-- 스킨 미리보기 기능
+- Multiple beautiful skins for chess pieces
+- Custom skin upload support
+- Theme-matched sound effects for moves, promotions, and more
+- Growing collection of skins with regular updates
+- Easy ON/OFF toggle
+- Skin preview functionality
+- Sound effect controls
 
-## 설치 방법
+### For Development
 
-### 개발자 모드로 설치
+1. Clone or download this repository
+2. Open Chrome and navigate to `chrome://extensions`
+3. Enable Developer Mode (toggle in top right)
+4. Click "Load unpacked" and select the project folder
 
-1. 이 저장소를 다운로드 또는 클론합니다.
-2. 크롬 브라우저에서 `chrome://extensions` 페이지로 이동합니다.
-3. 개발자 모드를 활성화합니다. (오른쪽 상단 토글)
-4. "압축해제된 확장 프로그램 로드" 버튼을 클릭하고 프로젝트 폴더를 선택합니다.
+## Usage
 
-## 사용 방법
+1. Click the chess icon in your Chrome toolbar
+2. Toggle the activation switch to ON
+3. Select your preferred skin from the dropdown menu
+4. Visit Chess.com to see your selected skin in action
+5. Adjust sound effects using the sound icon
 
-1. 확장 프로그램 설치 후 크롬 툴바에서 체스 아이콘을 클릭합니다.
-2. 팝업 창에서 활성화 토글을 ON으로 설정합니다.
-3. 드롭다운 메뉴에서 원하는 스킨을 선택합니다.
-4. Chess.com 웹사이트로 이동하면 선택한 스킨의 체스 피스가 적용됩니다.
+## Custom Skin Guidelines
 
-## 커스텀 스킨 추가하기
+To add your own custom skin:
 
-1. `skins` 폴더 안에 새 스킨 이름으로 폴더를 생성합니다 (예: `skins/my_skin`).
-2. 해당 폴더에 다음 이름 규칙에 맞춰 이미지 파일을 추가합니다:
-   - 검정색 말: br.png, bn.png, bb.png, bq.png, bk.png, bp.png
-   - 흰색 말: wr.png, wn.png, wb.png, wq.png, wk.png, wp.png
-3. 이미지 크기는 원본과 같은 150x150 픽셀을 권장합니다.
+1. Prepare your chess piece images (recommended size: 150x150 pixels)
+2. Name your files following this convention:
+   - Black pieces: br.png, bn.png, bb.png, bq.png, bk.png, bp.png
+   - White pieces: wr.png, wn.png, wb.png, wq.png, wk.png, wp.png
+3. Use the upload feature in the extension popup
 
-## 기술 스택
+## Technical Details
 
-- JavaScript
+- Built with JavaScript
 - Chrome Extension API (Manifest V3)
 - HTML/CSS
+- Local storage for settings
+- Supports modern browsers
 
-## 지원 브라우저
+## Browser Support
 
 - Google Chrome
-- 기타 Chromium 기반 브라우저 (Edge, Brave 등)
+- Other Chromium-based browsers (Edge, Brave, etc.)
 
-## 라이선스
+## Privacy
 
-MIT 라이선스
+This extension:
 
-## TODO 목록
+- Does not collect any user data
+- Works completely offline
+- Requires minimal permissions
+- Contains no tracking or analytics
 
-override 방식으로 변경하기 위한 소스 전체 수정
+## License
+
+MIT License

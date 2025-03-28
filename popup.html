@@ -74,10 +74,15 @@
          * 3. 로고 스타일
          */
       .logo {
-        font-size: 24px;
-        font-weight: bold;
         display: flex;
         align-items: center;
+      }
+      .logo-text {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0;
+        padding: 0;
+        margin-right: 8px;
       }
 
       .logo-dot {
@@ -329,24 +334,78 @@
          */
       .buttons-container {
         display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin: 12px auto 25px;
+        justify-content: space-between;
+        align-items: center;
+        margin: 12px auto;
+        padding: 0 25px;
+        max-width: 350px;
       }
 
-      .map-toggle-container {
+      .toggle-container {
         display: flex;
         align-items: center;
         gap: 6px;
-        border-radius: var(--border-radius);
-        padding: 4px 12px;
-        color: white;
-        font-weight: bold;
       }
 
-      .map-label {
-        font-size: 13px;
-        text-transform: uppercase;
+      .toggle {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+      }
+
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        transition: var(--transition-normal);
+        border-radius: 34px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: var(--transition-normal);
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--accent-color);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(18px);
+      }
+
+      .toggle-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+        transition: var(--transition-normal);
+      }
+
+      .toggle input:checked ~ .toggle-icon {
+        opacity: 1;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
       }
 
       .apply-button {
@@ -354,24 +413,26 @@
         background-color: var(--accent-color);
         color: white;
         border: none;
-        padding: 4px 20px;
+        padding: 8px 12px 8px 12px;
+        height: 30px;
         cursor: pointer;
         border-radius: var(--border-radius);
-        font-size: 13px;
+        font-size: 11px;
         font-weight: bold;
         text-transform: uppercase;
         transition: var(--transition-normal);
         box-shadow: var(--shadow-small);
         margin: 0;
+        white-space: nowrap;
       }
 
       .apply-button:hover {
         background-color: #5a3ecc;
-        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
       }
 
       .apply-button:active {
-        transform: translateY(0);
+        transform: translateY(1px);
         box-shadow: var(--shadow-small);
       }
 
@@ -544,11 +605,10 @@
     <!-- 헤더 영역 -->
     <header class="header">
       <div class="logo">
-        Chess Skin
+        <p class="logo-text">Chess Skin</p>
         <span class="logo-dot dot1"></span>
         <span class="logo-dot dot2"></span>
         <span class="logo-dot dot3"></span>
-        <span class="logo-dot dot4"></span>
       </div>
       <div class="toggle-container">
         <label class="toggle-switch">
@@ -586,15 +646,26 @@
 
     <!-- 컨트롤 버튼 영역 -->
     <div class="buttons-container">
-      <div class="map-toggle-container">
-        <span class="map-label">MAP</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="map-toggle" checked />
-          <span class="toggle-slider"></span>
+      <div class="toggle-container">
+        <img src="icons/sound.svg" class="toggle-icon" alt="Sound" />
+        <label class="toggle">
+          <input type="checkbox" id="sound-toggle" checked />
+          <span class="slider"></span>
         </label>
       </div>
-      <button id="apply-skin" class="apply-button">APPLY</button>
-      <button id="upload-skin" class="apply-button">UPLOAD</button>
+
+      <div class="toggle-container">
+        <img src="icons/map.svg" class="toggle-icon" alt="Map" />
+        <label class="toggle">
+          <input type="checkbox" id="map-toggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="button-group">
+        <button id="apply-skin" class="apply-button">APPLY</button>
+        <button id="upload-skin" class="apply-button">UPLOAD</button>
+      </div>
     </div>
 
     <!-- 푸터 -->
@@ -653,6 +724,10 @@
         </div>
       </div>
     </div>
+
+    <select id="skinTheme" style="display: none">
+      <option value="animal">animal</option>
+    </select>
 
     <!-- 자바스크립트 -->
     <script src="popup.js"></script>

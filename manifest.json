@@ -1,17 +1,25 @@
 {
   "manifest_version": 3,
-  "name": "Chess.com Skin Changer",
-  "version": "1.0.1",
-  "description": "Chess.com Skin Changer",
-  "permissions": ["declarativeNetRequest", "storage", "tabs"],
-  "host_permissions": [
-    "https://*.chess.com/*",
-    "https://images.chesscomfiles.com/*"
+  "name": "Chess Skin Changer",
+  "version": "1.0",
+  "description": "Customize your Chess.com experience with various chess piece skins and sounds",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["*://*.chess.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.chess.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["images/*", "skins/*"],
-      "matches": ["https://*.chess.com/*", "https://images.chesscomfiles.com/*"]
+      "resources": ["sounds/*", "skins/*"],
+      "matches": ["*://*.chess.com/*"]
     }
   ],
   "action": {
@@ -21,8 +29,5 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
-  },
-  "background": {
-    "service_worker": "background.js"
   }
 }
