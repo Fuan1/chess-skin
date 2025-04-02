@@ -3,7 +3,7 @@
   "name": "Chess Skin Changer",
   "version": "1.0",
   "description": "Customize your Chess.com experience with various chess piece skins and sounds",
-  "permissions": ["storage", "tabs"],
+  "permissions": ["storage"],
   "host_permissions": ["*://*.chess.com/*"],
   "background": {
     "service_worker": "background.js"
