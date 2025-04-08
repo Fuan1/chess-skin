@@ -51,7 +51,13 @@ async function generateCustomCSS(config) {
 
   // 사운드 변수 생성 - 사운드 활성화 상태에 따라 처리
   if (config.soundEnabled) {
-    const soundTypes = ["promote", "move-self"];
+    const soundTypes = [
+      "move-self",
+      "capture",
+      "illegal",
+      "castle",
+      "move-opponent",
+    ];
     const audioFormats = ["mp3", "ogg", "webm", "wav"];
 
     if (!isCustomSkin(config.skinTheme)) {

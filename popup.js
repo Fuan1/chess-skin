@@ -16,6 +16,10 @@ document.addEventListener("DOMContentLoaded", function () {
       id: "casino",
       name: "Casino",
     },
+    {
+      id: "space",
+      name: "Space",
+    },
   ];
 
   let skins = [...DEFAULT_SKINS];
