@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
       name: "Casino",
     },
     {
-      id: "space",
-      name: "Space",
+      id: "machine",
+      name: "Machine",
     },
   ];
 
