@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>SkinChess.com</title>
-    <!-- CSS 스타일 -->
+    <!-- CSS Style -->
     <style>
       /**
-         * 1. 기본 변수 및 설정
+         * 1. Basic Variables and Settings
          */
       :root {
         --primary-color: #333;
@@ -21,7 +21,7 @@
       }
 
       /**
-         * 2. 기본 레이아웃
+         * 2. Basic Layout
          */
       body {
         width: 380px;
@@ -71,7 +71,7 @@
       }
 
       /**
-         * 3. 로고 스타일
+         * 3. Logo Style
          */
       .logo {
         display: flex;
@@ -107,7 +107,7 @@
       }
 
       /**
-         * 4. 토글 스위치 공통 스타일
+         * 4. Toggle Switch Common Style
          */
       .toggle-container {
         display: inline-flex;
@@ -160,7 +160,7 @@
       }
 
       /**
-         * 5. 체스보드 스타일
+         * 5. Chessboard Style
          */
       .chessboard-container {
         padding: 10px;
@@ -206,7 +206,7 @@
       }
 
       /**
-         * 6. 내비게이션 컨트롤
+         * 6. Navigation Controls
          */
       .slider-controls {
         display: flex;
@@ -245,7 +245,7 @@
       }
 
       /**
-         * 7. 페이지네이션
+         * 7. Pagination
          */
       .pagination {
         display: flex;
@@ -269,7 +269,7 @@
       }
 
       /**
-         * 8. 기물 선택 영역
+         * 8. Piece Selection Area
          */
       .piece-selection-container {
         padding: 5px;
@@ -330,7 +330,7 @@
       }
 
       /**
-         * 9. 버튼 컨테이너 및 버튼 스타일
+         * 9. Button Container and Button Style
          */
       .buttons-container {
         display: flex;
@@ -452,7 +452,7 @@
       }
 
       /**
-         * 10. 모달 및 업로드 폼
+         * 10. Modal and Upload Form
          */
       .modal {
         display: none;
@@ -567,7 +567,7 @@
       }
 
       /**
-         * 11. 삭제 버튼 스타일
+         * 11. Delete Button Style
          */
       .delete-button {
         position: absolute;
@@ -594,7 +594,7 @@
         opacity: 1;
       }
 
-      /* 기타 스타일 */
+      /* Other Styles */
       .options-container {
         display: none;
       }
@@ -602,7 +602,7 @@
   </head>
 
   <body>
-    <!-- 헤더 영역 -->
+    <!-- Header Area -->
     <header class="header">
       <div class="logo">
         <p class="logo-text">Chess Skin</p>
@@ -618,13 +618,13 @@
       </div>
     </header>
 
-    <!-- 스킨 제목 -->
+    <!-- Skin Title -->
     <div class="skin-title" id="current-skin-title">Classic Skin</div>
 
-    <!-- 체스보드 미리보기 영역 -->
+    <!-- Chessboard Preview Area -->
     <div class="chessboard-container">
       <div class="chessboard" id="preview-board">
-        <!-- 체스보드는 자바스크립트로 동적 생성됨 -->
+        <!-- Chessboard is dynamically created with JavaScript -->
       </div>
       <div class="slider-controls">
         <button class="nav-button" id="prev-skin">&lt;</button>
@@ -632,19 +632,19 @@
       </div>
     </div>
 
-    <!-- 기물 미리보기 영역 -->
+    <!-- Piece Preview Area -->
     <div class="piece-selection-container">
       <div class="piece-selection" id="piece-selection">
-        <!-- 기물 선택 영역은 자바스크립트로 동적 생성됨 -->
+        <!-- Piece selection area is dynamically created with JavaScript -->
       </div>
     </div>
 
-    <!-- 페이지네이션 (스킨 선택 도트) -->
+    <!-- Pagination (Skin Selection Dots) -->
     <div class="pagination" id="skin-pagination">
-      <!-- 페이지네이션 도트는 자바스크립트로 동적 생성됨 -->
+      <!-- Pagination dots are dynamically created with JavaScript -->
     </div>
 
-    <!-- 컨트롤 버튼 영역 -->
+    <!-- Control Buttons Area -->
     <div class="buttons-container">
       <div class="toggle-container">
         <img src="icons/sound.svg" class="toggle-icon" alt="Sound" />
@@ -668,46 +668,49 @@
       </div>
     </div>
 
-    <!-- 푸터 -->
+    <!-- Footer -->
     <footer class="footer">
       <div class="version">v1.0.1</div>
       <div class="copyright">© 2025 Chess Skin Changer</div>
     </footer>
 
-    <!-- 업로드 모달 -->
+    <!-- Upload Modal -->
     <div id="upload-modal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>커스텀 스킨 업로드</h2>
+        <h2>Custom Skin Upload</h2>
 
-        <!-- 스킨 업로드 안내 정보 -->
+        <!-- Skin Upload Information -->
         <div class="upload-info">
-          <p><strong>필수 파일:</strong> 다음 12개 파일 (기물 이미지)</p>
+          <p>
+            <strong>Required Files:</strong> The following 12 files (piece
+            images)
+          </p>
           <ul>
-            <li>흑색 기물: bb.png, bk.png, bn.png, bp.png, bq.png, br.png</li>
-            <li>백색 기물: wb.png, wk.png, wn.png, wp.png, wq.png, wr.png</li>
+            <li>
+              Black pieces: bb.png, bk.png, bn.png, bp.png, bq.png, br.png
+            </li>
+            <li>
+              White pieces: wb.png, wk.png, wn.png, wp.png, wq.png, wr.png
+            </li>
           </ul>
-          <p><strong>맵 파일:</strong> dark.png, bright.png, grid.png</p>
-          <p><strong>이미지 사이즈:</strong></p>
+          <p><strong>Map Files:</strong> dark.png, bright.png, grid.png</p>
+          <p><strong>Image Sizes:</strong></p>
           <ul>
-            <li>기물: 150 x 150 픽셀</li>
-            <li>맵: 200 x 200 픽셀</li>
-            <li>grid: 1600 x 1600 픽셀</li>
+            <li>Pieces: 150 x 150 pixels</li>
+            <li>Map: 200 x 200 pixels</li>
+            <li>Grid: 1600 x 1600 pixels</li>
           </ul>
         </div>
 
-        <!-- 업로드 폼 -->
+        <!-- Upload Form -->
         <div class="upload-form">
           <div class="form-group">
-            <label for="skin-name">스킨 이름:</label>
-            <input
-              type="text"
-              id="skin-name"
-              placeholder="스킨 이름을 입력하세요"
-            />
+            <label for="skin-name">Skin Name:</label>
+            <input type="text" id="skin-name" placeholder="Enter skin name" />
           </div>
           <div class="form-group">
-            <label for="folder-upload">스킨 폴더 선택:</label>
+            <label for="folder-upload">Select Skin Folder:</label>
             <label class="custom-file-upload">
               <input
                 type="file"
@@ -716,11 +719,11 @@
                 directory
                 multiple
               />
-              파일 선택
+              folder select
             </label>
-            <div id="file-upload-status">선택된 파일 없음</div>
+            <div id="file-upload-status">No files selected</div>
           </div>
-          <button id="submit-upload" class="upload-button">업로드</button>
+          <button id="submit-upload" class="upload-button">Upload</button>
         </div>
       </div>
     </div>
@@ -729,7 +732,7 @@
       <option value="animal">animal</option>
     </select>
 
-    <!-- 자바스크립트 -->
+    <!-- JavaScript -->
     <script src="popup.js"></script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chess Skin Changer",
-  "version": "1.0",
+  "version": "1.1.1",
   "description": "Customize your Chess.com experience with various chess piece skins and sounds",
   "permissions": ["storage"],
   "host_permissions": ["*://*.chess.com/*"],
