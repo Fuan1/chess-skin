@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
       id: "machine",
       name: "Machine",
     },
+    {
+      id: "horror",
+      name: "Horror",
+    },
   ];
 
   let skins = [...DEFAULT_SKINS];
@@ -44,6 +48,14 @@ document.addEventListener("DOMContentLoaded", function () {
     SELECTION: ["wk", "wq", "wr", "wn", "wb"], // Pieces to display in preview
   };
 
+  // Every file a skin folder may provide: 12 pieces plus optional board images
+  const SKIN_FILE_NAMES = [
+    ...PIECE_CODES.ALL.map((code) => `${code}.png`),
+    "grid.png",
+    "bright.png",
+    "dark.png",
+  ];
+
   const BOARD_SETUP = [
     ["br", "bn", "bb", "bq"],
     ["bp", "bp", "bp", "bp"],
@@ -57,6 +69,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const elements = {
     board: document.getElementById("preview-board"),
     skinTitle: document.getElementById("current-skin-title"),
+    skinCounter: document.getElementById("skin-counter"),
+    skinStatus: document.getElementById("skin-status"),
+    version: document.getElementById("version"),
     skinToggle: document.getElementById("skin-toggle"),
     mapToggle: document.getElementById("map-toggle"),
     soundToggle: document.getElementById("sound-toggle"),
@@ -74,17 +89,28 @@ document.addEventListener("DOMContentLoaded", function () {
     folderUpload: document.getElementById("folder-upload"),
     skinNameInput: document.getElementById("skin-name"),
     fileUploadStatus: document.getElementById("file-upload-status"),
+    folderLabel: document.querySelector(".custom-file-upload"),
+    requiredFiles: document.getElementById("required-files"),
+    optionalFiles: document.getElementById("optional-files"),
+    requiredCount: document.getElementById("required-count"),
+    uploadMessage: document.getElementById("upload-message"),
   };
 
-  async function isImageExists(path) {
-    try {
-      const response = await fetch(path);
-      return response.ok;
-    } catch (error) {
-      console.log(`Image not found: ${path}`);
-      return false;
+  // Cache existence checks so re-rendering the preview doesn't refetch files
+  const imageExistsCache = {};
+
+  function isImageExists(path) {
+    if (!(path in imageExistsCache)) {
+      imageExistsCache[path] = fetch(path)
+        .then((response) => response.ok)
+        .catch(() => false);
     }
+    return imageExistsCache[path];
   }
+
+  // Incremented on every render; a render that finishes after a newer one
+  // started is discarded instead of appending to the board.
+  const renderIds = { board: 0, pieces: 0 };
 
   function isCustomSkin(skinId) {
     return skinId.startsWith(CUSTOM_SKIN_PREFIX);
@@ -154,12 +180,32 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function initializeChessboard() {
-    // Clear chessboard
-    elements.board.innerHTML = "";
-
+    const renderId = ++renderIds.board;
     const currentSkinId = getCurrentSkinId();
 
+    // Load every image URL up front, in parallel
+    const [lightURL, darkURL] = state.mapEnabled
+      ? await Promise.all([
+          getBoardImageURL(currentSkinId, true),
+          getBoardImageURL(currentSkinId, false),
+        ])
+      : [null, null];
+    const pieceURLs = await Promise.all(
+      BOARD_SETUP.flat().map((pieceCode) =>
+        getPieceImageURL(currentSkinId, pieceCode).catch((error) => {
+          console.error(`Error loading piece image: ${pieceCode}`, error);
+          return null;
+        })
+      )
+    );
+
+    // A newer render started while we were loading
+    if (renderId !== renderIds.board) {
+      return;
+    }
+
     // Create 4x4 chessboard
+    const fragment = document.createDocumentFragment();
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
         const square = document.createElement("div");
@@ -169,55 +215,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }`;
 
         // If map is enabled, set background image
-        if (state.mapEnabled) {
-          const backgroundURL = await getBoardImageURL(
-            currentSkinId,
-            isLightSquare
-          );
+        const backgroundURL = isLightSquare ? lightURL : darkURL;
+        if (backgroundURL) {
+          const styles = {
+            "background-image": `url('${backgroundURL}')`,
+            "background-size": "100% 100%",
+            "background-repeat": "no-repeat",
+            "background-position": "center",
+          };
 
-          if (backgroundURL) {
-            const styles = {
-              "background-image": `url('${backgroundURL}')`,
-              "background-size": "100% 100%",
-              "background-repeat": "no-repeat",
-              "background-position": "center",
-            };
-
-            square.setAttribute("style", stylesToString(styles));
-          }
+          square.setAttribute("style", stylesToString(styles));
         }
 
         // Place chess pieces
-        const pieceCode = BOARD_SETUP[row][col];
-        if (pieceCode) {
+        const imageURL = pieceURLs[row * 4 + col];
+        if (imageURL) {
           const pieceImg = document.createElement("img");
           pieceImg.className = "chess-piece";
-
-          try {
-            const imageURL = await getPieceImageURL(currentSkinId, pieceCode);
-            console.log("Piece image loaded:", imageURL);
-
-            pieceImg.src = imageURL;
-
-            // Use alternative image on error
-            pieceImg.onerror = () => {
-              pieceImg.src = `images/${pieceCode}.png`;
-            };
-
-            square.appendChild(pieceImg);
-          } catch (error) {
-            console.error(`Error loading piece image: ${pieceCode}`, error);
-          }
+          pieceImg.alt = "";
+          pieceImg.draggable = false;
+          pieceImg.src = imageURL;
+          square.appendChild(pieceImg);
         }
 
-        elements.board.appendChild(square);
+        fragment.appendChild(square);
       }
     }
+
+    elements.board.replaceChildren(fragment);
   }
 
   async function initializePieceSelection() {
-    elements.pieceSelection.innerHTML = "";
-
+    const renderId = ++renderIds.pieces;
     const currentSkinId = getCurrentSkinId();
 
     // Piece name mapping
@@ -229,36 +258,47 @@ document.addEventListener("DOMContentLoaded", function () {
       wb: "Bishop",
     };
 
-    for (const pieceCode of PIECE_CODES.SELECTION) {
+    const pieceURLs = await Promise.all(
+      PIECE_CODES.SELECTION.map((pieceCode) =>
+        getPieceImageURL(currentSkinId, pieceCode).catch((error) => {
+          console.error(
+            `Error loading piece selection image: ${pieceCode}`,
+            error
+          );
+          return null;
+        })
+      )
+    );
+
+    if (renderId !== renderIds.pieces) {
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    PIECE_CODES.SELECTION.forEach((pieceCode, index) => {
+      if (!pieceURLs[index]) {
+        return;
+      }
+
       const pieceContainer = document.createElement("div");
       pieceContainer.className = "piece-container";
 
       const pieceImg = document.createElement("img");
       pieceImg.className = "chess-piece";
+      pieceImg.alt = "";
+      pieceImg.draggable = false;
+      pieceImg.src = pieceURLs[index];
+      pieceContainer.appendChild(pieceImg);
 
-      try {
-        const imageURL = await getPieceImageURL(currentSkinId, pieceCode);
-        pieceImg.src = imageURL;
+      const pieceName = document.createElement("div");
+      pieceName.className = "piece-name";
+      pieceName.textContent = pieceNames[pieceCode];
+      pieceContainer.appendChild(pieceName);
 
-        pieceImg.onerror = () => {
-          pieceImg.src = `images/${pieceCode}.png`;
-        };
+      fragment.appendChild(pieceContainer);
+    });
 
-        pieceContainer.appendChild(pieceImg);
-
-        const pieceName = document.createElement("div");
-        pieceName.className = "piece-name";
-        pieceName.textContent = pieceNames[pieceCode];
-        pieceContainer.appendChild(pieceName);
-
-        elements.pieceSelection.appendChild(pieceContainer);
-      } catch (error) {
-        console.error(
-          `Error loading piece selection image: ${pieceCode}`,
-          error
-        );
-      }
-    }
+    elements.pieceSelection.replaceChildren(fragment);
   }
 
   function updateCurrentSkin() {
@@ -277,6 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
       deleteButton.className = "delete-button";
       deleteButton.innerHTML = "✕";
       deleteButton.title = "Delete this skin";
+      deleteButton.setAttribute("aria-label", "Delete this skin");
       deleteButton.addEventListener("click", () =>
         deleteCustomSkin(currentSkin.id)
       );
@@ -347,8 +388,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add dots for each skin
     skins.forEach((skin, index) => {
-      const dot = document.createElement("span");
+      const dot = document.createElement("button");
       dot.className = `dot ${index === state.currentSkinIndex ? "active" : ""}`;
+      dot.setAttribute("aria-label", skin.name);
       dot.addEventListener("click", () => {
         state.currentSkinIndex = index;
         updateCurrentSkin();
@@ -362,6 +404,9 @@ document.addEventListener("DOMContentLoaded", function () {
     dots.forEach((dot, index) => {
       dot.className = `dot ${index === state.currentSkinIndex ? "active" : ""}`;
     });
+    elements.skinCounter.textContent = `${state.currentSkinIndex + 1} / ${
+      skins.length
+    }`;
   }
 
   function saveSkinSettings() {
@@ -378,16 +423,14 @@ document.addEventListener("DOMContentLoaded", function () {
   function applySkin() {
     updateApplyButtonState();
     saveSkinSettings();
-    reloadCurrentTab();
+    reloadChessTab();
   }
 
   function updateApplyButtonState() {
     // Disable Apply button if skin is disabled
     elements.applyButton.disabled = !state.skinEnabled;
-    elements.applyButton.style.opacity = state.skinEnabled ? "1" : "0.5";
-    elements.applyButton.style.cursor = state.skinEnabled
-      ? "pointer"
-      : "not-allowed";
+    elements.skinStatus.textContent = state.skinEnabled ? "On" : "Off";
+    document.body.classList.toggle("skin-off", !state.skinEnabled);
   }
 
   function loadSettings() {
@@ -459,17 +502,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function validateSkinUpload(skinName, files) {
-    if (!skinName) {
-      return {
-        valid: false,
-        message: "Please enter a skin name.",
-      };
-    }
-
     if (files.length === 0) {
       return {
         valid: false,
-        message: "Please select skin files.",
+        message: "Choose a skin folder.",
+      };
+    }
+
+    if (!skinName) {
+      return {
+        valid: false,
+        message: "Enter a skin name.",
       };
     }
 
@@ -499,7 +542,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (missingFiles.length > 0) {
       return {
         valid: false,
-        message: `Missing required files: ${missingFiles.join(", ")}`,
+        message: `Missing ${missingFiles.length} required ${
+          missingFiles.length === 1 ? "file" : "files"
+        } (marked in red).`,
       };
     }
 
@@ -531,6 +576,108 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Handle custom skin file upload
    */
+  // Only keep files the extension actually uses; a picked folder may
+  // contain anything, and every byte counts against storage.local.
+  function getUsableFiles(files) {
+    return Array.from(files).filter((file) =>
+      SKIN_FILE_NAMES.includes(file.name)
+    );
+  }
+
+  function getFolderName(files) {
+    const relativePath = files[0] && files[0].webkitRelativePath;
+    return relativePath ? relativePath.split("/")[0] : "";
+  }
+
+  function setUploadMessage(text, type) {
+    elements.uploadMessage.textContent = text;
+    elements.uploadMessage.className = `upload-message ${type || ""}`;
+  }
+
+  function createFileChips() {
+    const createChip = (fileName, required) => {
+      const chip = document.createElement("span");
+      chip.className = "file-chip";
+      chip.dataset.file = fileName;
+      chip.dataset.required = required;
+      chip.textContent = fileName;
+      return chip;
+    };
+
+    PIECE_CODES.ALL.forEach((code) =>
+      elements.requiredFiles.appendChild(createChip(`${code}.png`, true))
+    );
+    SKIN_FILE_NAMES.filter(
+      (fileName) => !PIECE_CODES.ALL.includes(fileName.replace(".png", ""))
+    ).forEach((fileName) =>
+      elements.optionalFiles.appendChild(createChip(fileName, false))
+    );
+  }
+
+  /**
+   * Reflect the picked folder in the checklist and enable Upload when valid
+   */
+  function updateUploadState() {
+    const files = elements.folderUpload.files;
+    const hasFiles = files.length > 0;
+    const fileNames = Array.from(files).map((file) => file.name);
+
+    elements.uploadModal
+      .querySelectorAll(".file-chip")
+      .forEach((chip) => {
+        const found = fileNames.includes(chip.dataset.file);
+        chip.classList.toggle("found", found);
+        chip.classList.toggle(
+          "missing",
+          hasFiles && !found && chip.dataset.required === "true"
+        );
+      });
+
+    const requiredFound = PIECE_CODES.ALL.filter((code) =>
+      fileNames.includes(`${code}.png`)
+    ).length;
+    elements.requiredCount.textContent = hasFiles
+      ? `· ${requiredFound} / ${PIECE_CODES.ALL.length} found`
+      : `· ${PIECE_CODES.ALL.length} piece images`;
+
+    elements.folderLabel.classList.toggle("has-files", hasFiles);
+    elements.fileUploadStatus.textContent = hasFiles
+      ? `${getFolderName(files)} · ${getUsableFiles(files).length} usable files`
+      : "PNG files named like wk.png, bq.png";
+
+    const validation = validateSkinUpload(
+      elements.skinNameInput.value.trim(),
+      files
+    );
+    elements.submitUpload.disabled = !validation.valid;
+
+    if (!hasFiles) {
+      setUploadMessage("");
+    } else if (validation.valid) {
+      setUploadMessage("Ready to upload.", "ok");
+    } else {
+      setUploadMessage(validation.message, "error");
+    }
+  }
+
+  function openUploadModal() {
+    elements.uploadModal.style.display = "block";
+    updateUploadState();
+  }
+
+  function closeUploadModal() {
+    elements.uploadModal.style.display = "none";
+  }
+
+  function resetUploadForm() {
+    elements.skinNameInput.value = "";
+    elements.folderUpload.value = "";
+    updateUploadState();
+  }
+
+  /**
+   * Handle custom skin file upload
+   */
   async function handleSkinUpload() {
     const skinName = elements.skinNameInput.value.trim();
     const files = elements.folderUpload.files;
@@ -538,23 +685,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // Validate
     const validation = validateSkinUpload(skinName, files);
     if (!validation.valid) {
-      alert(validation.message);
+      setUploadMessage(validation.message, "error");
       return;
     }
 
+    elements.submitUpload.disabled = true;
+    setUploadMessage("Uploading…");
+
     try {
       // Read file data
-      const filesData = [];
-      for (const file of files) {
-        try {
-          const fileData = await readFileAsDataURL(file);
-          filesData.push(fileData);
-        } catch (error) {
-          console.error("Error reading file:", error);
-          alert(error.message);
-          return;
-        }
-      }
+      const filesData = await Promise.all(
+        getUsableFiles(files).map(readFileAsDataURL)
+      );
 
       // Send file data to background script
       chrome.runtime.sendMessage(
@@ -564,10 +706,11 @@ document.addEventListener("DOMContentLoaded", function () {
           filesData: filesData,
         },
         function (response) {
-          if (response && response.success) {
-            console.log("Skin files uploaded successfully");
-            alert("Skin has been uploaded successfully.");
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.message);
+          }
 
+          if (response && response.success) {
             // Create new skin object
             const newSkin = {
               id: validation.skinId,
@@ -575,34 +718,30 @@ document.addEventListener("DOMContentLoaded", function () {
               isCustom: true,
             };
 
-            // Add to skin list
+            // Add to skin list and show it in the preview
             skins.push(newSkin);
-
-            // Update current skin index
             state.currentSkinIndex = skins.length - 1;
 
-            // Close modal
-            elements.uploadModal.style.display = "none";
+            closeUploadModal();
+            resetUploadForm();
 
-            // Save settings
             saveSkinSettings();
-            // Update pagination
             initializePagination();
             updateCurrentSkin();
-
-            // Reset upload form
-            elements.skinNameInput.value = "";
-            elements.folderUpload.value = "";
-            elements.fileUploadStatus.textContent = "No files selected";
           } else {
             console.error("Failed to upload skin files");
-            alert("Failed to upload skin files.");
+            elements.submitUpload.disabled = false;
+            setUploadMessage(
+              "Couldn't save the skin. Please try again.",
+              "error"
+            );
           }
         }
       );
     } catch (error) {
       console.error("Error processing skin upload:", error);
-      alert("An error occurred while uploading the skin.");
+      elements.submitUpload.disabled = false;
+      setUploadMessage(error.message, "error");
     }
   }
 
@@ -640,10 +779,11 @@ document.addEventListener("DOMContentLoaded", function () {
       saveSkinSettings();
     });
 
-    // Sound toggle switch
+    // Sound toggle switch (sounds are picked up on page load, so reload)
     elements.soundToggle.addEventListener("change", function () {
       state.soundEnabled = this.checked;
       saveSkinSettings();
+      reloadChessTab();
     });
 
     // Upload-related events
@@ -654,27 +794,47 @@ document.addEventListener("DOMContentLoaded", function () {
    * Set up upload-related events
    */
   function setupUploadEvents() {
-    elements.uploadButton.addEventListener("click", function () {
-      elements.uploadModal.style.display = "block";
-    });
+    createFileChips();
 
-    elements.closeModal.addEventListener("click", function () {
-      elements.uploadModal.style.display = "none";
-    });
+    elements.uploadButton.addEventListener("click", openUploadModal);
+    elements.closeModal.addEventListener("click", closeUploadModal);
 
     // Close modal if clicked outside
     window.addEventListener("click", function (event) {
       if (event.target === elements.uploadModal) {
-        elements.uploadModal.style.display = "none";
+        closeUploadModal();
       }
     });
 
-    // Display file selection status
+    document.addEventListener("keydown", function (event) {
+      if (
+        event.key === "Escape" &&
+        elements.uploadModal.style.display === "block"
+      ) {
+        closeUploadModal();
+      }
+    });
+
+    // Keyboard access for the folder picker
+    elements.folderLabel.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        elements.folderUpload.click();
+      }
+    });
+
+    // Fill in the name from the folder and refresh the checklist
     elements.folderUpload.addEventListener("change", function () {
-      if (this.files.length > 0) {
-        elements.fileUploadStatus.textContent = `${this.files.length} files selected`;
-      } else {
-        elements.fileUploadStatus.textContent = "No files selected";
+      if (!elements.skinNameInput.value.trim()) {
+        elements.skinNameInput.value = getFolderName(this.files);
+      }
+      updateUploadState();
+    });
+
+    elements.skinNameInput.addEventListener("input", updateUploadState);
+    elements.skinNameInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" && !elements.submitUpload.disabled) {
+        handleSkinUpload();
       }
     });
 
@@ -682,16 +842,24 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function initialize() {
+    elements.version.textContent = `v${chrome.runtime.getManifest().version}`;
     initializePagination();
     setupEventListeners();
     loadSettings();
   }
 
-  // Reload current tab function
-  function reloadCurrentTab() {
+  // Reload the active tab, but only if it is a Chess.com page.
+  // tab.url is only exposed for hosts listed in host_permissions.
+  function reloadChessTab() {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      if (tabs[0]) {
-        chrome.tabs.reload(tabs[0].id);
+      const tab = tabs[0];
+      if (!tab || !tab.url) {
+        return;
+      }
+
+      const { hostname } = new URL(tab.url);
+      if (hostname === "chess.com" || hostname.endsWith(".chess.com")) {
+        chrome.tabs.reload(tab.id);
       }
     });
   }

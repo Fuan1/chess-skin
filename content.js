@@ -59,13 +59,19 @@ async function generateCustomCSS(config) {
       "move-opponent",
     ];
     const audioFormats = ["mp3", "ogg", "webm", "wav"];
+    const soundBaseUrl = `chrome-extension://${chrome.runtime.id}/skins/${config.skinTheme}/sounds`;
 
-    if (!isCustomSkin(config.skinTheme)) {
+    // 사운드 파일이 없는 스킨은 Chess.com 기본 사운드를 그대로 사용
+    const hasSounds =
+      !isCustomSkin(config.skinTheme) &&
+      (await isImageExists(`${soundBaseUrl}/move-self.mp3`));
+
+    if (hasSounds) {
       soundTypes.forEach((type) => {
         audioFormats.forEach((format) => {
           cssVariables.push(`
-          --theme-sound-set-${format}-${type}: url('chrome-extension://${chrome.runtime.id}/skins/${config.skinTheme}/sounds/${type}.${format}') !important;
-          --fallback-theme-sound-set-${format}-${type}: url('chrome-extension://${chrome.runtime.id}/skins/${config.skinTheme}/sounds/${type}.${format}') !important;
+          --theme-sound-set-${format}-${type}: url('${soundBaseUrl}/${type}.${format}') !important;
+          --fallback-theme-sound-set-${format}-${type}: url('${soundBaseUrl}/${type}.${format}') !important;
         `);
         });
       });
@@ -78,7 +84,7 @@ async function generateCustomCSS(config) {
 
   if (isCustomSkin(config.skinTheme)) {
     const result = await getCustomSkinImageURL(config.skinTheme);
-    const skinFiles = result[`skinFiles_${config.skinTheme}`];
+    const skinFiles = result?.[`${STORAGE_KEY_PREFIX}${config.skinTheme}`];
 
     if (skinFiles) {
       colors.forEach((color) => {
@@ -142,74 +148,53 @@ async function generateCustomCSS(config) {
   return css;
 }
 
+const STYLE_ID = "chess-custom-style";
+const CONFIG_KEYS = [
+  "selectedSkin",
+  "skinEnabled",
+  "mapEnabled",
+  "soundEnabled",
+  "customSkins",
+];
+
 // CSS 적용 함수
 function applyCustomCSS(css) {
-  console.log("CSS 적용 시작");
+  let style = document.getElementById(STYLE_ID);
 
-  // 기존 스타일 시트 제거
-  const existingStyle = document.getElementById("chess-custom-style");
-  if (existingStyle) {
-    existingStyle.remove();
-  }
-
-  // CSS가 비어있으면 스타일을 추가하지 않음
+  // CSS가 비어있으면 기존 스타일만 제거
   if (!css) {
-    console.log("적용할 CSS 없음");
+    if (style) {
+      style.remove();
+    }
     return;
   }
 
-  // 새로운 스타일 시트 추가 (highest priority)
-  const style = document.createElement("style");
-  style.id = "chess-custom-style";
-  style.setAttribute("data-priority", "highest");
+  if (!style) {
+    style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.setAttribute("data-priority", "highest");
+  }
   style.textContent = css;
 
-  // 항상 마지막 스타일 시트로 추가하여 우선순위 보장
-  if (document.head.lastChild) {
-    document.head.appendChild(style);
-  } else {
-    document.head.insertBefore(style, null);
-  }
-
-  console.log("CSS 적용 완료 및 DOM 감시 시작");
+  // document_start 시점에는 <head>가 아직 없을 수 있으므로 <html>에 먼저 붙임
+  (document.head || document.documentElement).appendChild(style);
 }
+
+// 마지막 요청만 반영되도록 하는 카운터 (비동기 생성 순서 역전 방지)
+let latestUpdateId = 0;
 
 // 설정 변경 시 CSS 업데이트
 async function updateCustomStyle(config) {
-  console.log("스타일 업데이트 시작", config);
+  const updateId = ++latestUpdateId;
   const css = await generateCustomCSS(config);
+  if (updateId !== latestUpdateId) {
+    return;
+  }
   applyCustomCSS(css);
 }
 
-// 초기 CSS 적용 (DOM 로드 완료 후)
-document.addEventListener("DOMContentLoaded", () => {
-  chrome.storage.sync.get(
-    [
-      "selectedSkin",
-      "skinEnabled",
-      "mapEnabled",
-      "soundEnabled",
-      "customSkins",
-    ],
-    function (data) {
-      console.log("DOM 로드 후 초기화:", data);
-      const config = {
-        skinTheme: data.selectedSkin || defaultConfig.skinTheme,
-        skinEnabled: data.skinEnabled ?? defaultConfig.skinEnabled,
-        mapEnabled: data.mapEnabled ?? defaultConfig.mapEnabled,
-        soundEnabled: data.soundEnabled ?? defaultConfig.soundEnabled,
-        customSkins: data.customSkins || defaultConfig.customSkins,
-      };
-      updateCustomStyle(config);
-    }
-  );
-});
-
-// 빠른 초기 CSS 적용 (DOM 로드 전)
-chrome.storage.sync.get(
-  ["selectedSkin", "skinEnabled", "mapEnabled", "soundEnabled", "customSkins"],
-  (data) => {
-    console.log("초기 스토리지 데이터:", data);
+function loadConfigAndApply() {
+  chrome.storage.sync.get(CONFIG_KEYS, (data) => {
     const config = {
       skinTheme: data.selectedSkin || defaultConfig.skinTheme,
       skinEnabled: data.skinEnabled ?? defaultConfig.skinEnabled,
@@ -218,5 +203,29 @@ chrome.storage.sync.get(
       customSkins: data.customSkins || defaultConfig.customSkins,
     };
     updateCustomStyle(config);
+  });
+}
+
+// 빠른 초기 CSS 적용 (DOM 로드 전)
+loadConfigAndApply();
+
+// DOM 로드 후 스타일을 <head>의 마지막으로 옮겨 우선순위 보장
+document.addEventListener("DOMContentLoaded", () => {
+  const style = document.getElementById(STYLE_ID);
+  if (style) {
+    document.head.appendChild(style);
   }
-);
+});
+
+// 팝업에서 설정이 바뀌면 새로고침 없이 바로 반영
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  const configChanged =
+    areaName === "sync" && CONFIG_KEYS.some((key) => key in changes);
+  const skinFilesChanged =
+    areaName === "local" &&
+    Object.keys(changes).some((key) => key.startsWith(STORAGE_KEY_PREFIX));
+
+  if (configChanged || skinFilesChanged) {
+    loadConfigAndApply();
+  }
+});
