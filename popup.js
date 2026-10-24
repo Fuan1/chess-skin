@@ -28,6 +28,10 @@ document.addEventListener("DOMContentLoaded", function () {
       id: "frankenstein-dracula",
       name: "Frankenstein vs Dracula",
     },
+    {
+      id: "angel-devil",
+      name: "Angel vs Devil",
+    },
   ];
 
   let skins = [...DEFAULT_SKINS];
