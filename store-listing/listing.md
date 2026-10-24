@@ -1,7 +1,7 @@
-# Chrome Web Store listing — Chess Skin Changer 1.2.0
+# Chrome Web Store listing — Chess Skin Changer 1.2.1
 
 Every claim below was checked against the code in this release:
-- Theme sounds: Animal, Casino, Machine only.
+- Theme sounds: Animal, Casino, Machine, Horror.
 - Board texture: Animal only.
 - Settings are kept in `chrome.storage.sync`, and uploaded skin images in `chrome.storage.local`.
 
@@ -24,7 +24,7 @@ Give your Chess.com games a new look. Chess Skin Changer swaps the chess pieces 
 • Animal: lion king, zebra knight and friends, with themed sounds and a board texture
 • Casino: playing-card royals and a jackpot rook, with themed sounds
 • Machine: mechanical pieces with gears and LEDs, with themed sounds
-• Horror (new): skulls, a haunted tower and a reaper bishop
+• Horror (new): skulls, a haunted tower and a reaper bishop, with spooky themed sounds
 • Frankenstein vs Dracula (new): inspired by the Vienna Game's Frankenstein–Dracula Variation (1.e4 e5 2.Nc3 Nf6 3.Bc4 Nxe4). White plays as Frankenstein's monster, Black as Count Dracula.
 
 Every set keeps the familiar piece shapes, so you can still read the board at a glance.
@@ -48,6 +48,7 @@ Runs only on chess.com. No account, no tracking, no analytics, and no data is co
 
 ★ WHAT'S NEW IN 1.2
 • Two new sets: Horror and Frankenstein vs Dracula
+• Horror comes with its own spooky move, capture and castling sounds
 • Redesigned popup in a Chess.com-style dark theme
 • Easier custom uploads with a live file checklist
 • Settings now apply to open Chess.com tabs right away
@@ -75,7 +76,7 @@ Chess.com 대국에 새로운 분위기를 더해 보세요. Chess Skin Changer�
 • Animal: 사자 킹, 얼룩말 나이트 등 동물 테마. 테마 효과음과 보드 텍스처 포함
 • Casino: 트럼프 카드 로열과 잭팟 룩. 테마 효과음 포함
 • Machine: 톱니바퀴와 LED가 달린 기계 기물. 테마 효과음 포함
-• Horror (신규): 해골 폰, 유령의 탑, 사신 비숍
+• Horror (신규): 해골 폰, 유령의 탑, 사신 비숍. 으스스한 테마 효과음 포함
 • Frankenstein vs Dracula (신규): 비엔나 게임의 프랑켄슈타인-드라큘라 바리에이션(1.e4 e5 2.Nc3 Nf6 3.Bc4 Nxe4)에서 영감을 받은 세트. 백은 프랑켄슈타인, 흑은 드라큘라입니다.
 
 모든 세트가 익숙한 기물 모양을 유지해서 판을 한눈에 읽을 수 있습니다.
@@ -99,6 +100,7 @@ chess.com에서만 동작합니다. 계정, 추적, 분석 도구가 없으며 �
 
 ★ 1.2 업데이트
 • 새 세트 2종: Horror, Frankenstein vs Dracula
+• Horror 전용 이동·잡기·캐슬링 효과음
 • Chess.com 스타일의 다크 테마로 팝업 리디자인
 • 파일 체크리스트로 더 쉬워진 커스텀 업로드
 • 열려 있는 Chess.com 탭에 설정이 바로 반영
