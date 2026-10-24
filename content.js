@@ -11,6 +11,23 @@ const defaultConfig = {
 
 const STORAGE_KEY_PREFIX = "skinFiles_";
 
+// Chess.com 사운드 종류 → 스킨에서 찾을 파일 이름 (앞에서부터 처음 있는 파일 사용).
+// 하나도 없으면 Chess.com 기본 사운드를 그대로 둠.
+const SOUND_SOURCES = {
+  "move-self": ["move-self"],
+  "move-opponent": ["move-opponent"],
+  capture: ["capture"],
+  castle: ["castle"],
+  illegal: ["illegal"],
+  "move-check": ["move-check", "move-self"],
+  "move-self-check": ["move-self-check", "move-check", "move-self"],
+  "move-opponent-check": ["move-opponent-check", "move-check", "move-opponent"],
+  premove: ["premove", "move-self"],
+  promote: ["promote", "move-self"],
+  "game-start": ["game-start"],
+  "game-end": ["game-end"],
+};
+
 async function isImageExists(path) {
   try {
     const response = await fetch(path);
@@ -50,32 +67,34 @@ async function generateCustomCSS(config) {
   const cssVariables = [];
 
   // 사운드 변수 생성 - 사운드 활성화 상태에 따라 처리
-  if (config.soundEnabled) {
-    const soundTypes = [
-      "move-self",
-      "capture",
-      "illegal",
-      "castle",
-      "move-opponent",
-    ];
+  if (config.soundEnabled && !isCustomSkin(config.skinTheme)) {
     const audioFormats = ["mp3", "ogg", "webm", "wav"];
     const soundBaseUrl = `chrome-extension://${chrome.runtime.id}/skins/${config.skinTheme}/sounds`;
 
-    // 사운드 파일이 없는 스킨은 Chess.com 기본 사운드를 그대로 사용
-    const hasSounds =
-      !isCustomSkin(config.skinTheme) &&
-      (await isImageExists(`${soundBaseUrl}/move-self.mp3`));
+    // 스킨에 있는 사운드 파일 확인 (mp3가 있으면 다른 포맷도 있다고 봄)
+    const fileNames = [...new Set(Object.values(SOUND_SOURCES).flat())];
+    const existing = new Set(
+      (
+        await Promise.all(
+          fileNames.map(async (name) =>
+            (await isImageExists(`${soundBaseUrl}/${name}.mp3`)) ? name : null
+          )
+        )
+      ).filter(Boolean)
+    );
 
-    if (hasSounds) {
-      soundTypes.forEach((type) => {
-        audioFormats.forEach((format) => {
-          cssVariables.push(`
-          --theme-sound-set-${format}-${type}: url('${soundBaseUrl}/${type}.${format}') !important;
-          --fallback-theme-sound-set-${format}-${type}: url('${soundBaseUrl}/${type}.${format}') !important;
+    Object.entries(SOUND_SOURCES).forEach(([type, candidates]) => {
+      const fileName = candidates.find((name) => existing.has(name));
+      if (!fileName) {
+        return;
+      }
+      audioFormats.forEach((format) => {
+        cssVariables.push(`
+          --theme-sound-set-${format}-${type}: url('${soundBaseUrl}/${fileName}.${format}') !important;
+          --fallback-theme-sound-set-${format}-${type}: url('${soundBaseUrl}/${fileName}.${format}') !important;
         `);
-        });
       });
-    }
+    });
   }
 
   // 체스 기물 변수 생성

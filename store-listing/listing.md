@@ -48,7 +48,8 @@ Runs only on chess.com. No account, no tracking, no analytics, and no data is co
 
 ★ WHAT'S NEW IN 1.2
 • Two new sets: Horror and Frankenstein vs Dracula
-• Horror and Frankenstein vs Dracula come with their own themed move, capture and castling sounds
+• Horror and Frankenstein vs Dracula come with their own themed sounds for moves, captures, castling, check, promotion and game start/end
+• Check and promotion now play the skin's move sound on Animal, Casino and Machine instead of Chess.com's default
 • Redesigned popup in a Chess.com-style dark theme
 • Easier custom uploads with a live file checklist
 • Settings now apply to open Chess.com tabs right away
@@ -100,7 +101,8 @@ chess.com에서만 동작합니다. 계정, 추적, 분석 도구가 없으며 �
 
 ★ 1.2 업데이트
 • 새 세트 2종: Horror, Frankenstein vs Dracula
-• Horror, Frankenstein vs Dracula 전용 이동·잡기·캐슬링 효과음
+• Horror, Frankenstein vs Dracula 전용 이동·잡기·캐슬링·체크·승진·대국 시작/종료 효과음
+• Animal, Casino, Machine도 체크·승진 때 Chess.com 기본음 대신 스킨의 이동 소리 사용
 • Chess.com 스타일의 다크 테마로 팝업 리디자인
 • 파일 체크리스트로 더 쉬워진 커스텀 업로드
 • 열려 있는 Chess.com 탭에 설정이 바로 반영
