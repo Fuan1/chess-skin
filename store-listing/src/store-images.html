@@ -324,6 +324,7 @@
         { id: "machine", name: "Machine" },
         { id: "horror", name: "Horror" },
         { id: "frankenstein-dracula", name: "Frankenstein vs Dracula" },
+        { id: "angel-devil", name: "Angel vs Devil" },
       ];
 
       const piece = (skin, code) => `${SKINS}/${skin}/${code}.png`;
@@ -376,7 +377,7 @@
             <div style="display:flex;flex-direction:column;height:800px">
             <div style="padding:52px 64px 0">
               <h1>Reskin your <em>Chess.com</em> pieces</h1>
-              <p class="sub">5 themed piece sets · your own custom uploads · themed move sounds</p>
+              <p class="sub">6 themed piece sets · your own custom uploads · themed move sounds</p>
             </div>
             <div style="flex:1;display:flex;justify-content:space-between;align-items:center;padding:0 52px 8px">
               ${[
@@ -473,9 +474,9 @@
               </div>
               <div style="display:flex;justify-content:space-between;margin-top:26px">
                 ${SETS.map(
-                  (s) => `<div style="width:72px;height:72px;border-radius:10px;background:${
+                  (s) => `<div style="width:58px;height:58px;border-radius:10px;background:${
                     SETS.indexOf(s) % 2 ? "var(--dark-square)" : "var(--light-square)"
-                  }"><img src="${piece(s.id, "wk")}" style="width:72px;height:72px" /></div>`
+                  }"><img src="${piece(s.id, "wk")}" style="width:58px;height:58px" /></div>`
                 ).join("")}
               </div>
             </div>`,
@@ -491,7 +492,7 @@
                   <div style="font-size:26px;font-weight:800">Chess Skin Changer</div>
                 </div>
                 <h1>Reskin your <em>Chess.com</em> pieces</h1>
-                <p class="sub">5 themed sets, including the new Horror and Frankenstein vs Dracula.</p>
+                <p class="sub">6 themed sets, including the new Horror, Frankenstein vs Dracula and Angel vs Devil.</p>
               </div>
               <div style="display:flex;gap:24px">
                 ${board("horror", FEN.ruy, { size: 330, coords: false })}

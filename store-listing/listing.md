@@ -12,7 +12,7 @@ Every claim below was checked against the code in this release:
 ### Summary (max 132 characters)
 
 ```
-Reskin your Chess.com pieces: 5 themed sets, your own custom uploads, themed move sounds and board texture. No data collected.
+Reskin your Chess.com pieces: 6 themed sets, your own custom uploads, themed move sounds and board texture. No data collected.
 ```
 
 ### Description
@@ -20,12 +20,13 @@ Reskin your Chess.com pieces: 5 themed sets, your own custom uploads, themed mov
 ```
 Give your Chess.com games a new look. Chess Skin Changer swaps the chess pieces on Chess.com for themed sets, adds matching move sounds and lets you upload your own pieces.
 
-★ 5 PIECE SETS
+★ 6 PIECE SETS
 • Animal: lion king, zebra knight and friends, with themed sounds and a board texture
 • Casino: playing-card royals and a jackpot rook, with themed sounds
 • Machine: mechanical pieces with gears and LEDs, with themed sounds
 • Horror (new): skulls, a haunted tower and a reaper bishop, with spooky themed sounds
 • Frankenstein vs Dracula (new): inspired by the Vienna Game's Frankenstein–Dracula Variation (1.e4 e5 2.Nc3 Nf6 3.Bc4 Nxe4). White plays as Frankenstein's monster, Black as Count Dracula, with castle-and-laboratory themed sounds.
+• Angel vs Devil (new): White plays as angels with golden halos and folded wings, Black as devils with crimson horns and red eyes.
 
 Every set keeps the familiar piece shapes, so you can still read the board at a glance.
 
@@ -47,7 +48,7 @@ Put 12 PNG images (wk.png, wq.png … bp.png) in a folder and upload it. A check
 Runs only on chess.com. No account, no tracking, no analytics, and no data is collected. Your settings are saved in Chrome's own extension storage.
 
 ★ WHAT'S NEW IN 1.2
-• Two new sets: Horror and Frankenstein vs Dracula
+• Three new sets: Horror, Frankenstein vs Dracula and Angel vs Devil
 • Horror and Frankenstein vs Dracula come with their own themed sounds for moves, captures, castling, check, promotion and game start/end
 • Check and promotion now play the skin's move sound on Animal, Casino and Machine instead of Chess.com's default
 • Redesigned popup in a Chess.com-style dark theme
@@ -65,7 +66,7 @@ Chess Skin Changer is an independent project and is not affiliated with or endor
 ### 요약 (최대 132자)
 
 ```
-Chess.com 기물을 테마 스킨으로! 5가지 기물 세트, 나만의 기물 업로드, 테마 효과음과 보드 텍스처. 데이터 수집 없음.
+Chess.com 기물을 테마 스킨으로! 6가지 기물 세트, 나만의 기물 업로드, 테마 효과음과 보드 텍스처. 데이터 수집 없음.
 ```
 
 ### 설명
@@ -73,12 +74,13 @@ Chess.com 기물을 테마 스킨으로! 5가지 기물 세트, 나만의 기물
 ```
 Chess.com 대국에 새로운 분위기를 더해 보세요. Chess Skin Changer는 Chess.com의 체스 기물을 테마 세트로 바꾸고, 어울리는 효과음을 입히고, 직접 만든 기물도 올릴 수 있게 해 줍니다.
 
-★ 기물 세트 5종
+★ 기물 세트 6종
 • Animal: 사자 킹, 얼룩말 나이트 등 동물 테마. 테마 효과음과 보드 텍스처 포함
 • Casino: 트럼프 카드 로열과 잭팟 룩. 테마 효과음 포함
 • Machine: 톱니바퀴와 LED가 달린 기계 기물. 테마 효과음 포함
 • Horror (신규): 해골 폰, 유령의 탑, 사신 비숍. 으스스한 테마 효과음 포함
 • Frankenstein vs Dracula (신규): 비엔나 게임의 프랑켄슈타인-드라큘라 바리에이션(1.e4 e5 2.Nc3 Nf6 3.Bc4 Nxe4)에서 영감을 받은 세트. 백은 프랑켄슈타인, 흑은 드라큘라입니다. 성과 실험실 분위기의 테마 효과음 포함
+• Angel vs Devil (신규): 백은 금빛 후광과 날개를 단 천사, 흑은 붉은 뿔과 눈을 가진 악마입니다.
 
 모든 세트가 익숙한 기물 모양을 유지해서 판을 한눈에 읽을 수 있습니다.
 
@@ -100,7 +102,7 @@ PNG 이미지 12장(wk.png, wq.png … bp.png)을 폴더에 담아 업로드하�
 chess.com에서만 동작합니다. 계정, 추적, 분석 도구가 없으며 어떤 데이터도 수집하지 않습니다. 설정은 Chrome 확장 프로그램 저장소에만 저장됩니다.
 
 ★ 1.2 업데이트
-• 새 세트 2종: Horror, Frankenstein vs Dracula
+• 새 세트 3종: Horror, Frankenstein vs Dracula, Angel vs Devil
 • Horror, Frankenstein vs Dracula 전용 이동·잡기·캐슬링·체크·승진·대국 시작/종료 효과음
 • Animal, Casino, Machine도 체크·승진 때 Chess.com 기본음 대신 스킨의 이동 소리 사용
 • Chess.com 스타일의 다크 테마로 팝업 리디자인
