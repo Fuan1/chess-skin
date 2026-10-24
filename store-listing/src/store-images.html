@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Store images</title>
+    <!--
+      Chrome Web Store images, built from the extension's real assets.
+      Render one image per URL: store-images.html?shot=hero|horror|fd|popup|upload|promo|marquee
+      (see render.sh for the exact sizes).
+    -->
+    <style>
+      :root {
+        --bg: #262421;
+        --surface: #312e2b;
+        --border: #45423f;
+        --text: #ffffff;
+        --text-muted: #bababa;
+        --accent: #81b64c;
+        --accent-hover: #95c962;
+        --light-square: #ebecd0;
+        --dark-square: #739552;
+        --highlight: rgba(255, 255, 51, 0.5);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .canvas {
+        position: relative;
+        overflow: hidden;
+        background: radial-gradient(
+            ellipse at 75% 20%,
+            rgba(129, 182, 76, 0.16),
+            transparent 55%
+          ),
+          radial-gradient(ellipse at 10% 100%, #34302c, transparent 60%), var(--bg);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 54px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+
+      h1 em {
+        font-style: normal;
+        color: var(--accent);
+      }
+
+      .sub {
+        margin: 14px 0 0;
+        font-size: 22px;
+        line-height: 1.45;
+        color: var(--text-muted);
+      }
+
+      .tag {
+        display: inline-block;
+        margin-bottom: 14px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+      }
+
+      /* Board */
+      .board {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+        background-size: 100% 100%;
+      }
+
+      .sq {
+        position: relative;
+      }
+
+      .sq.l {
+        background: var(--light-square);
+      }
+
+      .sq.d {
+        background: var(--dark-square);
+      }
+
+      .board.textured .sq {
+        background: transparent;
+      }
+
+      .sq.hl::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--highlight);
+      }
+
+      .sq img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .coord {
+        position: absolute;
+        font-size: 11px;
+        font-weight: 700;
+        z-index: 1;
+      }
+
+      .sq.l .coord {
+        color: var(--dark-square);
+      }
+
+      .sq.d .coord {
+        color: var(--light-square);
+      }
+
+      .coord.rank {
+        top: 3px;
+        left: 4px;
+      }
+
+      .coord.file {
+        right: 4px;
+        bottom: 2px;
+      }
+
+      .label {
+        margin-top: 16px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .label span {
+        display: block;
+        margin-top: 2px;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      .popup {
+        border-radius: 14px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--border);
+      }
+
+      .lineup {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        padding: 12px;
+        border-radius: 12px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+
+      .lineup img {
+        width: 100%;
+      }
+
+      .features {
+        margin: 34px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .features li {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin-bottom: 22px;
+        font-size: 21px;
+        line-height: 1.4;
+      }
+
+      .features b {
+        display: block;
+        font-size: 23px;
+      }
+
+      .features span {
+        color: var(--text-muted);
+      }
+
+      .num {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 20px;
+      }
+
+      .moves {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 26px;
+      }
+
+      .moves span {
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .moves span.key {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .vs {
+        display: flex;
+        gap: 18px;
+        margin-top: 30px;
+      }
+
+      .side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        font-size: 19px;
+        font-weight: 700;
+      }
+
+      .side img {
+        width: 64px;
+        height: 64px;
+      }
+
+      .side span {
+        display: block;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      .sets {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+      }
+
+      .set {
+        flex: 1;
+        padding: 8px 4px 6px;
+        border-radius: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      .set img {
+        display: block;
+        width: 62px;
+        height: 62px;
+        margin: 0 auto 2px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand img {
+        border-radius: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script>
+      const SKINS = "../../skins";
+      const FEN = {
+        italian: "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 6 5",
+        sicilian: "r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 2 6",
+        ruy: "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+        // Vienna Game, Frankenstein-Dracula Variation after 3...Nxe4
+        vienna: "rnbqkb1r/pppp1ppp/8/4p3/2B1n3/2N5/PPPP1PPP/R1BQK1NR w KQkq - 0 4",
+      };
+
+      const SETS = [
+        { id: "animal", name: "Animal" },
+        { id: "casino", name: "Casino" },
+        { id: "machine", name: "Machine" },
+        { id: "horror", name: "Horror" },
+        { id: "frankenstein-dracula", name: "Frankenstein vs Dracula" },
+      ];
+
+      const piece = (skin, code) => `${SKINS}/${skin}/${code}.png`;
+
+      // Board from FEN; opts: { size, coords, highlight: ["f6","e4"], texture }
+      function board(skin, fen, opts = {}) {
+        const { size = 400, coords = true, highlight = [], texture } = opts;
+        const el = document.createElement("div");
+        el.className = "board" + (texture ? " textured" : "");
+        el.style.width = el.style.height = size + "px";
+        if (texture) el.style.backgroundImage = `url('${SKINS}/${skin}/${texture}')`;
+
+        const rows = fen.split(" ")[0].split("/");
+        rows.forEach((row, r) => {
+          const cells = [];
+          for (const ch of row) {
+            if (/\d/.test(ch)) cells.push(...Array(Number(ch)).fill(null));
+            else cells.push(ch);
+          }
+          cells.forEach((ch, c) => {
+            const name = "abcdefgh"[c] + (8 - r);
+            const sq = document.createElement("div");
+            sq.className = `sq ${(r + c) % 2 ? "d" : "l"}` + (highlight.includes(name) ? " hl" : "");
+            if (coords && c === 0) sq.insertAdjacentHTML("beforeend", `<span class="coord rank">${8 - r}</span>`);
+            if (coords && r === 7) sq.insertAdjacentHTML("beforeend", `<span class="coord file">${"abcdefgh"[c]}</span>`);
+            if (ch) {
+              const color = ch === ch.toUpperCase() ? "w" : "b";
+              sq.insertAdjacentHTML("beforeend", `<img src="${piece(skin, color + ch.toLowerCase())}" alt="" />`);
+            }
+            el.appendChild(sq);
+          });
+        });
+        return el.outerHTML;
+      }
+
+      // White pieces on dark squares, black pieces on light squares, for contrast
+      function lineup(skin) {
+        const codes = ["k", "q", "r", "b", "n", "p"];
+        const cell = (code, bg) =>
+          `<div style="border-radius:8px;background:var(${bg})"><img src="${piece(skin, code)}" /></div>`;
+        return `<div class="lineup">${codes.map((c) => cell("w" + c, "--dark-square")).join("")}${codes
+          .map((c) => cell("b" + c, "--light-square"))
+          .join("")}</div>`;
+      }
+
+      const SHOTS = {
+        hero: {
+          size: [1280, 800],
+          html: () => `
+            <div style="display:flex;flex-direction:column;height:800px">
+            <div style="padding:52px 64px 0">
+              <h1>Reskin your <em>Chess.com</em> pieces</h1>
+              <p class="sub">5 themed piece sets · your own custom uploads · themed move sounds</p>
+            </div>
+            <div style="flex:1;display:flex;justify-content:space-between;align-items:center;padding:0 52px 8px">
+              ${[
+                ["animal", "Animal", "Themed sounds + board texture", FEN.italian, "grid.png"],
+                ["horror", "Horror", "New in 1.2", FEN.sicilian],
+                ["frankenstein-dracula", "Frankenstein vs Dracula", "New in 1.2", FEN.vienna],
+              ]
+                .map(
+                  ([id, name, note, fen, texture]) =>
+                    `<div>${board(id, fen, { size: 376, texture })}<div class="label">${name}<span>${note}</span></div></div>`
+                )
+                .join("")}
+            </div>
+            </div>`,
+        },
+
+        horror: {
+          size: [1280, 800],
+          html: () => `
+            <div style="display:flex;align-items:center;gap:64px;padding:70px 64px">
+              ${board("horror", FEN.sicilian, { size: 660, highlight: ["g8", "f6"] })}
+              <div style="flex:1">
+                <div class="tag">NEW</div>
+                <h1>Horror</h1>
+                <p class="sub">Skull pawns, a haunted tower, a reaper bishop and a nightmare horse, all on the classic shapes you already know.</p>
+                <div style="margin-top:34px">${lineup("horror")}</div>
+              </div>
+            </div>`,
+        },
+
+        fd: {
+          size: [1280, 800],
+          html: () => `
+            <div style="display:flex;align-items:center;gap:64px;padding:70px 64px">
+              ${board("frankenstein-dracula", FEN.vienna, { size: 660, highlight: ["f6", "e4"] })}
+              <div style="flex:1">
+                <div class="tag">NEW</div>
+                <h1>Frankenstein<br /><em>vs</em> Dracula</h1>
+                <p class="sub">Named after the Vienna Game's wildest line: the Frankenstein–Dracula Variation.</p>
+                <div class="moves"><span>1.e4 e5</span><span>2.Nc3 Nf6</span><span>3.Bc4</span><span class="key">Nxe4!?</span></div>
+                <div class="vs">
+                  <div class="side"><img src="${piece("frankenstein-dracula", "wk")}" /><div>White<span>Frankenstein's monster</span></div></div>
+                  <div class="side"><img src="${piece("frankenstein-dracula", "bk")}" /><div>Black<span>Count Dracula</span></div></div>
+                </div>
+              </div>
+            </div>`,
+        },
+
+        popup: {
+          size: [1280, 800],
+          html: () => `
+            <div style="display:flex;align-items:center;gap:72px;padding:0 64px;height:800px">
+              <div style="flex:1">
+                <h1>Switch sets in <em>one click</em></h1>
+                <ul class="features">
+                  <li><div class="num">1</div><div><b>Preview before you apply</b><span>Browse every set on a mini board.</span></div></li>
+                  <li><div class="num">2</div><div><b>Your choice of extras</b><span>Turn skins, sounds and board texture on or off.</span></div></li>
+                  <li><div class="num">3</div><div><b>Applies to Chess.com</b><span>Hit Apply and your Chess.com tab picks it up.</span></div></li>
+                </ul>
+                <div class="sets">${SETS.map(
+                  (s) => `<div class="set"><img src="${piece(s.id, "wk")}" />${s.name.replace(" vs ", " vs<br />")}</div>`
+                ).join("")}</div>
+              </div>
+              <img class="popup" src="assets/popup-horror.png" style="width:456px" />
+            </div>`,
+        },
+
+        upload: {
+          size: [1280, 800],
+          html: () => `
+            <div style="display:flex;align-items:center;gap:72px;padding:0 64px;height:800px">
+              <img class="popup" src="assets/popup-upload.png" style="width:456px" />
+              <div style="flex:1">
+                <h1>Bring your <em>own pieces</em></h1>
+                <ul class="features">
+                  <li><div class="num">1</div><div><b>Draw 12 PNG pieces</b><span>Name them wk.png, wq.png … bp.png. A board image is optional.</span></div></li>
+                  <li><div class="num">2</div><div><b>Choose the folder</b><span>A checklist shows what's found and what's missing, and the name fills itself in.</span></div></li>
+                  <li><div class="num">3</div><div><b>Apply it like any set</b><span>Your skin is stored on your device only.</span></div></li>
+                </ul>
+              </div>
+            </div>`,
+        },
+
+        promo: {
+          size: [440, 280],
+          html: () => `
+            <div style="display:flex;flex-direction:column;justify-content:center;height:280px;padding:0 30px">
+              <div class="brand">
+                <img src="../../icons/icon128.png" style="width:60px;height:60px" />
+                <div>
+                  <div style="font-size:28px;font-weight:800;letter-spacing:-0.01em">Chess Skin Changer</div>
+                  <div style="font-size:16px;color:var(--text-muted)">Themed pieces for Chess.com</div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:26px">
+                ${SETS.map(
+                  (s) => `<div style="width:72px;height:72px;border-radius:10px;background:${
+                    SETS.indexOf(s) % 2 ? "var(--dark-square)" : "var(--light-square)"
+                  }"><img src="${piece(s.id, "wk")}" style="width:72px;height:72px" /></div>`
+                ).join("")}
+              </div>
+            </div>`,
+        },
+
+        marquee: {
+          size: [1400, 560],
+          html: () => `
+            <div style="display:flex;align-items:center;height:560px;padding:0 72px;gap:56px">
+              <div style="flex:1">
+                <div class="brand" style="margin-bottom:26px">
+                  <img src="../../icons/icon128.png" style="width:64px;height:64px" />
+                  <div style="font-size:26px;font-weight:800">Chess Skin Changer</div>
+                </div>
+                <h1>Reskin your <em>Chess.com</em> pieces</h1>
+                <p class="sub">5 themed sets, including the new Horror and Frankenstein vs Dracula.</p>
+              </div>
+              <div style="display:flex;gap:24px">
+                ${board("horror", FEN.ruy, { size: 330, coords: false })}
+                ${board("frankenstein-dracula", FEN.vienna, { size: 330, coords: false, highlight: ["f6", "e4"] })}
+              </div>
+            </div>`,
+        },
+      };
+
+      const shot = SHOTS[new URLSearchParams(location.search).get("shot") || "hero"];
+      const [w, h] = shot.size;
+      document.getElementById("root").innerHTML = `<div class="canvas" style="width:${w}px;height:${h}px">${shot.html()}</div>`;
+    </script>
+  </body>
+</html>
